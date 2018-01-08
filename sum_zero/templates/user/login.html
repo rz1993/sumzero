@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+  {{ get_flashed_messages()[0] }}
+  <form method="POST">
+    {{ form.csrf_token }}
+    {{ form.email.label }} {{ form.email() }}
+    {{ form.password.label }} {{ form.password() }}
+    {{ form.remember_me.label }} {{ form.remember_me }}
+    {{ form.submit() }}
+  </form>
+
+{% endblock %}

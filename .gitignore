@@ -1,0 +1,11 @@
+# Configuration
+config.py
+
+# Compiled python files
+__pycache__
+*/__pycache__
+*/*/__pycache__
+
+# Dev databases and migrations
+test.db
+migrations

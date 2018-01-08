@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+  <h1 class="ui big header">
+    Welcome {% if current_user.is_authenticated %} {{ current_user.first_name }} {% else %} {{ "Guest"}} {% endif %}
+  </h1>
+  {% for topic in ["Topic1", "Topic2", "Topic3", "Topic4"] %}
+    <div class="ui secondary pointing menu">
+      <a class="item">
+        <h2 class="ui medium header">Topic</h2>
+      </a>
+      <div class="right menu">
+        <a class="item">
+          See more
+          <i class="angle right icon"></i>
+        </a>
+      </div>
+    </div>
+    <div class="ui two column grid">
+    {% for title in ['Title', 'title2', 'title3', 'title4'] %}
+      <div class="column">
+        <div class="ui segment">
+          <div class="ui padded grid">
+            <div class="six wide column">
+              <img src="img/test.jpg"></img>
+            </div>
+            <div class="ten wide left aligned column">
+              <h3 class="ui small header">{{ title }}</h3>
+              <div class="sub header">
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit,
+                sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
+                nisi ut aliquip ex ea commodo consequat.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+    </div>
+    <div class="ui hidden divider"></div>
+    <div class="ui hidden divider"></div>
+    <div class="ui hidden divider"></div>
+  {% endfor %}
+
+{% endblock %}
