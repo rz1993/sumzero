@@ -29,6 +29,10 @@ manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 
 @app.route('/')
+def landing():
+    return render_template('landing.html')
+
+@app.route('/home')
 def index():
     return render_template('home.html')
 

@@ -1,6 +1,9 @@
 # Configuration
 config.py
 
+# Static files
+static
+
 # Compiled python files
 __pycache__
 */__pycache__

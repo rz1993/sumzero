@@ -1,14 +1,69 @@
-{% extends 'base.html' %}
+{% extends 'base_alt.html' %}
+
+{% block title %}SumZero: You know you want to{% endblock %}
+
+{% block css %}
+<style type="text/css">
+  #form-segment {
+    min-height: 300px;
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-  {{ get_flashed_messages()[0] }}
-
-  <form method="POST">
-    {{ form.csrf_token }}
-    {{ form.first_name.label }} {{ form.first_name() }}
-    {{ form.last_name.label }} {{ form.last_name() }}
-    {{ form.email.label }} {{ form.email() }}
-    {{ form.password.label }} {{ form.password() }}
-    {{ form.submit() }}
-  </form>
+<div id="main-grid" class="ui middle aligned center aligned grid">
+  <div class="six wide column">
+    <div class="ui vertical segment">
+      <div class="ui text container">
+        <h1 id="main-header" class="ui inverted header">
+          <strong>SumZero</strong>
+        </h1>
+        {% for msg in range(3) %}
+        <h3 id="sub-header" class="ui inverted header">
+          <strong>Your best place for accurate news summaries.</strong>
+        </h3>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="four wide column">
+    <h2 class="ui inverted header">
+      <strong>Sign up for your daily summaries!</strong>
+    </h2>
+    <form method="POST" class="ui large form">
+      <div id="form-segment" class="ui segment">
+        {{ form.csrf_token }}
+        <div class="ui center aligned grid">
+          <div class="fourteen wide column">
+            <div class="field">
+              <div class="ui left icon input">
+                <i class="user icon"></i>
+                {{ form.first_name(placeholder="Enter your first name.", style="margin-top: 1.5em;") }}
+              </div>
+            </div>
+            <div class="field">
+              <div class="ui left icon input">
+                <i class="user icon"></i>
+                {{ form.last_name(placeholder="Enter your last name.") }}
+              </div>
+            </div>
+            <div class="field">
+              <div class="ui left icon input">
+                <i class="user icon"></i>
+                {{ form.email(placeholder="Enter your e-mail address.") }}
+              </div>
+            </div>
+            <div class="field">
+              <div class="ui left icon input">
+                <i class="lock icon"></i>
+                {{ form.password(placeholder="Enter your password.") }}
+              </div>
+            </div>
+            {{ form.submit(class="ui teal submit fluid button", style="margin: 1.5em 0em;") }}
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
 {% endblock %}

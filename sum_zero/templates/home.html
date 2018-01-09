@@ -22,10 +22,11 @@
       <div class="column">
         <div class="ui segment">
           <div class="ui padded grid">
-            <div class="six wide column">
-              <img src="img/test.jpg"></img>
+            <div class="seven wide column">
+              <!-- `ui image` class needed to fit image to container -->
+              <img class="ui image" src="{{ url_for('static', filename='test.jpg') }}"></img>
             </div>
-            <div class="ten wide left aligned column">
+            <div class="nine wide left aligned column">
               <h3 class="ui small header">{{ title }}</h3>
               <div class="sub header">
                 Lorem ipsum dolor sit amet, consectetur adipisicing elit,

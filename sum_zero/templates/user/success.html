@@ -1,7 +1,23 @@
-{% extends 'base.html' %}
+{% extends 'base_alt.html' %}
+
+{% block title %} Registration successful! {% endblock %}
 
 {% block content %}
-  <h1>Registration successful!</h1>
-  <br>
-  <p>A confirmation with instructions to verify your account has been sent to your email</p>
+  <div id="main-grid" class="ui middle aligned grid">
+    <div class="row"></div>
+    <div class="row">
+      <div class="ui container">
+        <h1 id="main-header" class="ui inverted header">
+          <strong>Registration successful!</strong>
+        </h1>
+        <h3 id="sub-header" class="ui inverted header">
+          <strong>A confirmation with instructions to verify your account has been sent to your email.</strong>
+        </h3>
+        <button class="ui large inverted button" href="{{ url_for('index') }}" style="margin-top: 1.5em;">
+          <h3>Return Home</h3>
+        </button>
+      </div>
+    </div>
+    <div class="row"></div>
+  </div>
 {% endblock %}

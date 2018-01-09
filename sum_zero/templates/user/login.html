@@ -1,14 +1,78 @@
 {% extends 'base.html' %}
 
-{% block content %}
+<!--
+  TODO:
+    1. Move error messages as sidepopups to fields
+    2. Possibly move form validation to front-end JS
+    3. Add header bar to the top
+-->
+{% block title %}
+Login to Sumzero
+{% endblock %}
 
-  {{ get_flashed_messages()[0] }}
-  <form method="POST">
-    {{ form.csrf_token }}
-    {{ form.email.label }} {{ form.email() }}
-    {{ form.password.label }} {{ form.password() }}
-    {{ form.remember_me.label }} {{ form.remember_me }}
-    {{ form.submit() }}
-  </form>
+{% block css %}
+<!-- Needed to make the grid centered on the page -->
+<style type="text/css">
+    body > .grid {
+      height: 70%;
+    }
+    .image {
+      margin-top: -100px;
+    }
+    .column {
+      max-width: 450px;
+    }
+  </style>
+{% endblock %}
+
+{% block body %}
+<!-- Centered form container grid -->
+<div class="ui middle aligned center aligned grid">
+  <div class="six wide column">
+    <h2 class="ui header">
+      <img class="image" src="{{ url_for('static', filename='logo.png') }}">
+      <div class="content">Log-in to your account</div>
+    </h2>
+
+    <!-- Log-in form -->
+    <form method="POST" class="ui large form">
+      {{ form.csrf_token }}
+      <div class="ui segment">
+        <div class="field">
+          <div class="ui left icon input">
+            <i class="user icon"></i>
+            {{ form.email(placeholder="E-mail address") }}
+          </div>
+        </div>
+        <div class="field">
+          <div class="ui left icon input">
+            <i class="lock icon"></i>
+            {{ form.password(placeholder="Password") }}
+          </div>
+        </div>
+        {{ form.submit(class="ui teal submit button") }}
+      </div>
+    </form>
+    <div class="ui message">
+      New to us?
+      <a href="{{ url_for('user.register') }}">Sign Up</a>
+    </div>
+
+    <!-- Error messages -->
+    {% if form.email.errors or form.password.errors %}
+    <div class="ui error message">
+      <div class="header">There were some issues.</div>
+      <ul class="list">
+      {% for error_msg in form.email.errors %}
+        <li>{{ error_msg }}</li>
+      {% endfor %}
+      {% for error_msg in form.password.errors %}
+        <li>{{ error_msg }}</li>
+      {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+</div>
 
 {% endblock %}
