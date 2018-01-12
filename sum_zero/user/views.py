@@ -1,21 +1,29 @@
 from flask import (abort, Blueprint, flash, g, redirect, request, render_template,
                     session, url_for)
-from flask_login import login_required, login_user, logout_user
+from flask_login import current_user, login_required, login_user, logout_user
 
-from sum_zero.user.forms import RegistrationForm, LoginForm
+from sum_zero import db
+from sum_zero.user.forms import EditProfileForm, LoginForm, RegistrationForm
 from sum_zero.user.models import User, UserAuth
-
+from sum_zero.utils import send_email
 
 mod = Blueprint('user', __name__, url_prefix="/user")
 
 # Decorators
 def login_required(f):
-    def wrapped_f(*args, **kwargs):
+    def wrapped(*args, **kwargs):
         if session.get('logged_in'):
             return f(*args, **kwargs)
         flash("Login required.")
         return redirect(url_for('user.login'))
-    return wrapped_f
+    return wrapped
+
+def is_user(f):
+    def wrapped(*args, **kwargs):
+        if current_user.id == kwargs.get('user_id'):
+            return f(*args, **kwargs)
+        raise Exception("Forbidden")
+    return wrapped
 
 # Views
 @mod.route('/register', methods=['GET', 'POST'])
@@ -43,7 +51,6 @@ def registration_success():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        print("Form validated. Authenticating...")
         user = UserAuth.authenticate(form.email.data, form.password.data)
         if user:
             login_user(user, remember=form.remember_me.data)
@@ -53,17 +60,32 @@ def login():
     return render_template('user/login.html', form=form)
 
 @mod.route('/logout')
-@login_required
 def logout():
     logout_user()
     flash("You have been logged out!")
     return redirect(url_for('index'))
 
-@mod.route('/<user_id>/')
+@mod.route('/<user_id>/', methods=['GET', 'POST'])
 def profile(user_id=None):
-    if user_id is None:
-        abort(404)
-    user = User.query.filter(id=user_id).first()
+    user = User.query.filter_by(id=user_id).first()
     if not user:
         abort(404)
-    return render_template('user/profile.html', user=user)
+    if user.id != current_user.id:
+        profile = user.user_context()
+        return render_template('user/profile.html', is_user=False, form=None, profile=profile)
+    form = EditProfileForm()
+    if form.validate_on_submit():
+        # TODO: consider abstracting and moving this to background thread
+        # TODO: separate out email changing to separate process
+        user.first_name = form.first_name.data or user.first_name
+        user.last_name = form.last_name.data or user.last_name
+        user.bio = form.bio.data or user.bio
+        db.session.add(user)
+        db.session.commit()
+        flash("Your profile has been updated.")
+    # Populate profile form with existing user fields and render template
+    form.first_name.data = user.first_name
+    form.last_name.data = user.last_name
+    form.bio.data = user.bio
+    profile = user.user_context()
+    return render_template('user/profile.html', is_user=True, form=form, profile=profile)

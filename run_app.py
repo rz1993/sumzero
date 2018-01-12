@@ -16,5 +16,4 @@ from sum_zero import app, manager
 
 if __name__ == "__main__":
     print("Running sum_zero app...")
-    print(app.config['SQLALCHEMY_DATABASE_URI'])
-    app.run(port=8000)
+    manager.run()

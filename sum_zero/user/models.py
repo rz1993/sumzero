@@ -1,8 +1,16 @@
+from flask import url_for
+from hashlib import md5
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from sum_zero import app, db
 from werkzeug.security import check_password_hash, generate_password_hash
 
 
 class User(db.Model):
+    """
+    Basic user profile model built to be compatible with Flask-Login and
+    has basic confirmation functionality and subscription functionality.
+    """
+
     id = db.Column(db.Integer, primary_key=True)
 
     # User email information
@@ -13,6 +21,9 @@ class User(db.Model):
     is_enabled = db.Column(db.Boolean(), nullable=False, default=False)
     first_name = db.Column(db.String(50), nullable=False, default='')
     last_name = db.Column(db.String(50), nullable=False, default='')
+    bio = db.Column(db.Text(), nullable=True)
+    ig_handle = db.Column(db.String(50), nullable=True) # For avatar retrieval
+    avatar_hash = db.Column(db.String(255), nullable=True)
 
     """ Following four methods required for Flask-Login session management."""
     def is_authenticated(self):
@@ -27,11 +38,37 @@ class User(db.Model):
     def get_id(self):
         return self.id
 
+    def gen_confirmation_token(self, expires_in=3600):
+        s = Serializer(app.config.get('SECRET_KEY'), expires_in=expires_in)
+        token = s.dump({'user_id': self.id})
+        return token
+
+    def confirm_token(self, token):
+        s = Serializer(app.config.get('SECRET_KEY'))
+        token = s.loads(token)
+        return token.get('user_id') == self.id
+
+    def user_context(self):
+        return dict(id=self.id, email=self.email, first_name=self.first_name,
+            last_name=self.last_name, bio=self.bio)
+
+    def get_avatar_url(self):
+        url = "https://avatars.io"
+        if self.ig_handle is not None:
+            return "{}/instagram/{}".format(url, self.ig_handle)
+        return url_for("static", filename="default_avatar.jpg")
+
     def subscribe(self, publication):
+        # TODO: build many-many model of subscriptions between users and topics/sources
         pass
 
 
 class UserAuth(db.Model):
+    """
+    User authentication abstraction. Separated from user profile model to ensure
+    that authentication object data is not exposed to front end of the application.
+    Only the user profile model is exposed.
+    """
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer(), db.ForeignKey('user.id', ondelete='CASCADE'))
 

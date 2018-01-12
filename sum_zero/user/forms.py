@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import validators
-from wtforms import BooleanField, PasswordField, StringField, SubmitField
+from wtforms import BooleanField, PasswordField, StringField, SubmitField, TextAreaField
 
 
 class RegistrationForm(FlaskForm):
@@ -33,3 +33,10 @@ class LoginForm(FlaskForm):
         validators.Length(min=6, message="password needs to be at least 6 characters")])
     remember_me = BooleanField("Remember me:")
     submit = SubmitField('Login')
+
+
+class EditProfileForm(FlaskForm):
+    first_name = StringField("First Name: ")
+    last_name = StringField("Last Name: ")
+    bio = TextAreaField("About me")
+    submit = SubmitField("Submit")
