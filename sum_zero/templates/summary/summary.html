@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="ui text container">
+  <div class="ui segment">
+    <div class="ui large header">
+      {{ summary.title }}
+      <div class="sub header">
+        From {{ summary.source.name }}
+        <div class="ui button">Subscribe</div>
+      </div>
+      <div class="sub header">{{ summary.published_date }}</div>
+    </div>
+    <p>{{ summary.body }}</p>
+    <a href="{{ summary.link }}">Original Article</a>
+    <div class="ui hidden divider"></div>
+    {% for tag in summary.tags %}
+    <a class="ui button" href="{{ url_for('summary.get_tag', tag_id=tag.id) }}">
+      {{ tag.tag }}
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

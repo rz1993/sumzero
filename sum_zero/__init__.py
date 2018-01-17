@@ -39,4 +39,7 @@ def index():
 from sum_zero.user.views import mod as user_blueprint
 app.register_blueprint(user_blueprint)
 
+from sum_zero.summary.views import mod as summary_blueprint
+app.register_blueprint(summary_blueprint)
+
 app.debug = app.config['DEBUG']

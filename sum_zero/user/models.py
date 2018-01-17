@@ -2,6 +2,7 @@ from flask import url_for
 from hashlib import md5
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from sum_zero import app, db
+from sum_zero.summary.models import Subscription
 from werkzeug.security import check_password_hash, generate_password_hash
 
 
@@ -24,6 +25,11 @@ class User(db.Model):
     bio = db.Column(db.Text(), nullable=True)
     ig_handle = db.Column(db.String(50), nullable=True) # For avatar retrieval
     avatar_hash = db.Column(db.String(255), nullable=True)
+
+    # Relationships
+    subscriptions = db.relationship('Subscription', foreign_keys=[Subscription.user_id],
+        backref=db.backref('user', lazy='joined'), lazy='dynamic',
+        cascade='all, delete-orphan')
 
     """ Following four methods required for Flask-Login session management."""
     def is_authenticated(self):
@@ -58,9 +64,16 @@ class User(db.Model):
             return "{}/instagram/{}".format(url, self.ig_handle)
         return url_for("static", filename="default_avatar.jpg")
 
-    def subscribe(self, publication):
+    def is_subscribed(self, source):
+        return self.subscriptions.\
+            filter_by(source_id=source.id).first() is not None
+
+    def subscribe(self, source):
         # TODO: build many-many model of subscriptions between users and topics/sources
-        pass
+        if not self.is_subscribed(source):
+            subscription = Subscription(source_id=source.id, user_id=self.id)
+            db.session.add(subscription)
+            db.session.commit()
 
 
 class UserAuth(db.Model):

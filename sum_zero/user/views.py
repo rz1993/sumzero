@@ -1,6 +1,7 @@
 from flask import (abort, Blueprint, flash, g, redirect, request, render_template,
                     session, url_for)
 from flask_login import current_user, login_required, login_user, logout_user
+from functools import wraps
 
 from sum_zero import db
 from sum_zero.user.forms import EditProfileForm, LoginForm, RegistrationForm
@@ -11,8 +12,9 @@ mod = Blueprint('user', __name__, url_prefix="/user")
 
 # Decorators
 def login_required(f):
+    @wraps(f)
     def wrapped(*args, **kwargs):
-        if session.get('logged_in'):
+        if current_user.is_authenticated():
             return f(*args, **kwargs)
         flash("Login required.")
         return redirect(url_for('user.login'))
@@ -60,6 +62,7 @@ def login():
     return render_template('user/login.html', form=form)
 
 @mod.route('/logout')
+@login_required
 def logout():
     logout_user()
     flash("You have been logged out!")

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="ui text container">
+  <div class="ui large header">
+    <h2 class="sub header">Sourced from:</h2>
+    {{ source.name }}
+  </div>
+  {% for summary in paginate.items %}
+  <div class="ui segment">
+    <div class="ui padded grid">
+      <div class="seven wide column">
+        <img class="ui image" src="{{ url_for('static', filename='test.jpg') }}"></img>
+      </div>
+      <div class="nine wide left aligned column">
+        <a class="ui medium header"
+           href="{{ url_for('summary.get_summary', summary_id=summary.id) }}">
+           {{ summary.title }}
+         </a>
+        <div class="sub header">{{ summary.body }}</div>
+        <a href="{{ summary.link }}">Original Article</a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
