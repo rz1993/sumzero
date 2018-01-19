@@ -14,6 +14,13 @@ class Subscription(db.Model):
         db.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
+class Bookmark(db.Model):
+    summary_id = db.Column(db.Integer,
+        db.ForeignKey('summary.id', ondelete='CASCADE'), primary_key=True)
+    user_id = db.Column(db.Integer,
+        db.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
 class Summary(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(64), nullable=False)
@@ -44,7 +51,6 @@ class Source(db.Model):
     subscribers = db.relationship('Subscription', foreign_keys=[Subscription.source_id],
         backref=db.backref('source', lazy='joined'), lazy='dynamic',
         cascade='all, delete-orphan')
-
 
 class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)

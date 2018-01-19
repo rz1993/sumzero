@@ -1,0 +1,90 @@
+<!-- HTML and Javascript for Subscription Button -->
+
+{% macro render_sub_button(source, current_user) %}
+
+{% if not current_user.is_subscribed(source.id) %}
+<button id='subscribe-btn' class="ui button"
+        post='{{ url_for('apis.subscribe') }}'>Subscribe</button>
+{% else %}
+<button id='subscribe-btn' class="ui button"
+        post='{{ url_for('apis.unsubscribe') }}'>Unsubscribe</button>
+{% endif %}
+
+{% endmacro %}
+
+
+{% macro render_sub_button_js(source, current_user) %}
+
+<script type='text/javascript'>
+let subButton = document.getElementById('subscribe-btn');
+subButton.onclick = () => {
+  subscribe();
+  toggleButton();
+}
+
+function subscribe() { // Submit subscription post request
+  var post_to = subButton.getAttribute('post');
+  console.log('{{ url_for('apis.subscribe') }}');
+  console.log(post_to);
+  $.post(post_to, {
+    user_id: {{ current_user.id }},
+    source_id: {{ source.id }} },
+    function(response) {
+      console.log('Success!');
+    }, 'json'
+  );
+};
+
+function toggleButton() { // Toggle the sub button to unsub
+  let sub_endpoint = '{{ url_for('apis.subscribe') }}';
+  let unsub_endpoint = '{{ url_for('apis.unsubscribe' )}}'
+  if (subButton.getAttribute('post') == sub_endpoint) {
+    subButton.setAttribute('post', unsub_endpoint);
+    subButton.innerHTML = 'Unsubscribe';
+  } else {
+    subButton.setAttribute('post', sub_endpoint);
+    subButton.innerHTML = 'Subscribe';
+  }
+}
+</script>
+
+{% endmacro %}
+
+<!-- Bookmark Button -->
+
+{% macro render_bkmk_button(summary, current_user) %}
+
+{% if not current_user.has_bookmarked(summary.id) %}
+<i id='bookmark-btn' class="remove bookmark icon"
+   post='{{ url_for('apis.bookmark') }}'></i>
+{% else %}
+<i id='bookmark-btn' class="bookmark icon"
+   post='{{ url_for('apis.bookmark') }}'></i>
+{% endif %}
+
+{% endmacro %}
+
+{% macro render_bkmk_js(summary, current_user) %}
+<script type='text/javascript'>
+let bookmark_button = document.getElementById('bookmark-btn');
+bookmark_button.onclick = () => {
+  bookmark();
+  toggleButton();
+}
+
+function bookmark() {
+  let post_to = '{{ url_for('apis.bookmark') }}';
+  $.post(post_to, {
+    summary_id: {{ summary.id }},
+    user_id: {{ current_user.id }} },
+    function(response) {
+      console.log('Success!')
+    }, 'json'
+  );
+}
+
+function toggleButton() {
+  bookmark_button.classList.toggle('remove');
+}
+</script>
+{% endmacro %}

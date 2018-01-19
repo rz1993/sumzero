@@ -2,7 +2,7 @@ from flask import url_for
 from hashlib import md5
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from sum_zero import app, db
-from sum_zero.summary.models import Subscription
+from sum_zero.summary.models import Bookmark, Subscription
 from werkzeug.security import check_password_hash, generate_password_hash
 
 
@@ -26,12 +26,16 @@ class User(db.Model):
     ig_handle = db.Column(db.String(50), nullable=True) # For avatar retrieval
     avatar_hash = db.Column(db.String(255), nullable=True)
 
+    """ Following four methods required for Flask-Login session management."""
     # Relationships
     subscriptions = db.relationship('Subscription', foreign_keys=[Subscription.user_id],
         backref=db.backref('user', lazy='joined'), lazy='dynamic',
         cascade='all, delete-orphan')
+    bookmarks = db.relationship('Bookmark', foreign_keys=[Bookmark.user_id],
+        backref=db.backref('user', lazy='joined'), lazy='dynamic',
+        cascade='all, delete-orphan')
 
-    """ Following four methods required for Flask-Login session management."""
+
     def is_authenticated(self):
         return True
 
@@ -64,16 +68,33 @@ class User(db.Model):
             return "{}/instagram/{}".format(url, self.ig_handle)
         return url_for("static", filename="default_avatar.jpg")
 
-    def is_subscribed(self, source):
-        return self.subscriptions.\
-            filter_by(source_id=source.id).first() is not None
+    def has_bookmarked(self, summary_id):
+        return self.bookmarks\
+            .filter_by(summary_id=summary_id).first() is not None
 
-    def subscribe(self, source):
-        # TODO: build many-many model of subscriptions between users and topics/sources
-        if not self.is_subscribed(source):
-            subscription = Subscription(source_id=source.id, user_id=self.id)
-            db.session.add(subscription)
-            db.session.commit()
+    def bookmark(self, summary_id):
+        bookmark = Bookmark(summary_id=summary_id, user_id=self.id)
+        db.session.add(bookmark)
+        db.session.commit()
+
+    def del_bookmark(self, summary_id):
+        bookmark = self.bookmarks.filter_by(summary_id=summary_id).first()
+        db.session.delete(bookmark)
+        db.session.commit()
+
+    def is_subscribed(self, source_id):
+        return self.subscriptions\
+            .filter_by(source_id=source_id).first() is not None
+
+    def subscribe(self, source_id):
+        subscription = Subscription(source_id=source_id, user_id=self.id)
+        db.session.add(subscription)
+        db.session.commit()
+
+    def unsubscribe(self, source_id):
+        subscription = self.subscriptions.filter_by(source_id=source_id).first()
+        db.session.delete(subscription)
+        db.session.commit()
 
 
 class UserAuth(db.Model):

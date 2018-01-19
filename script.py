@@ -2,7 +2,6 @@
 Command line script for generating fake data for sum_zero.
 """
 
-
 from sum_zero import db
 from sum_zero.user.models import User, UserAuth
 from sum_zero.summary.models import Source, Summary, Tag

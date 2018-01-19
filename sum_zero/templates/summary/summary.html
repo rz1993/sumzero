@@ -1,13 +1,15 @@
 {% extends 'base.html' %}
 
 {% block content %}
+{% from 'macros.html' import render_sub_button, render_bkmk_button %}
 <div class="ui text container">
   <div class="ui segment">
     <div class="ui large header">
       {{ summary.title }}
+      {{ render_bkmk_button(summary, current_user) }}
       <div class="sub header">
         From {{ summary.source.name }}
-        <div class="ui button">Subscribe</div>
+        {{ render_sub_button(summary.source, current_user) }}
       </div>
       <div class="sub header">{{ summary.published_date }}</div>
     </div>
@@ -21,4 +23,10 @@
     {% endfor %}
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+{% from 'macros.html' import render_sub_button_js, render_bkmk_js %}
+{{ render_sub_button_js(summary.source, current_user) }}
+{{ render_bkmk_js(summary, current_user) }}
 {% endblock %}

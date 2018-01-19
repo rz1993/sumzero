@@ -42,4 +42,7 @@ app.register_blueprint(user_blueprint)
 from sum_zero.summary.views import mod as summary_blueprint
 app.register_blueprint(summary_blueprint)
 
+from sum_zero.api.views import mod as api_blueprint
+app.register_blueprint(api_blueprint)
+
 app.debug = app.config['DEBUG']

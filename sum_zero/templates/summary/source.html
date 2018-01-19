@@ -2,9 +2,13 @@
 
 {% block content %}
 <div class="ui text container">
-  <div class="ui large header">
-    <h2 class="sub header">Sourced from:</h2>
-    {{ source.name }}
+  <div class="ui segment">
+    <div class="ui large header">
+      <h2 class="sub header">Sourced from:</h2>
+      {{ source.name }}
+    </div>
+    {% from 'macros.html' import render_sub_button %}
+    {{ render_sub_button(source, current_user) }}
   </div>
   {% for summary in paginate.items %}
   <div class="ui segment">
@@ -24,4 +28,9 @@
   </div>
   {% endfor %}
 </div>
+{% endblock %}
+
+{% block scripts %}
+{% from 'macros.html' import render_sub_button_js %}
+{{ render_sub_button_js(source, current_user) }}
 {% endblock %}
