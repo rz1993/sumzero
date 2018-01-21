@@ -64,7 +64,7 @@ function toggleButton() { // Toggle the sub button to unsub
 
 {% endmacro %}
 
-{% macro render_bkmk_js(summary, current_user) %}
+{% macro render_bkmk_js(summary) %}
 <script type='text/javascript'>
 let bookmark_button = document.getElementById('bookmark-btn');
 bookmark_button.onclick = () => {
@@ -75,8 +75,7 @@ bookmark_button.onclick = () => {
 function bookmark() {
   let post_to = '{{ url_for('apis.bookmark') }}';
   $.post(post_to, {
-    summary_id: {{ summary.id }},
-    user_id: {{ current_user.id }} },
+    summary_id: {{ summary.id }} },
     function(response) {
       console.log('Success!')
     }, 'json'

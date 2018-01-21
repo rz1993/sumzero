@@ -2,7 +2,7 @@ from flask import url_for
 from hashlib import md5
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from sum_zero import app, db
-from sum_zero.summary.models import Bookmark, Subscription
+from sum_zero.summary.models import Bookmark, Comment, Subscription
 from werkzeug.security import check_password_hash, generate_password_hash
 
 
@@ -34,7 +34,9 @@ class User(db.Model):
     bookmarks = db.relationship('Bookmark', foreign_keys=[Bookmark.user_id],
         backref=db.backref('user', lazy='joined'), lazy='dynamic',
         cascade='all, delete-orphan')
-
+    comments = db.relationship('Comment', foreign_keys=[Comment.user_id],
+        backref=db.backref('user', lazy='joined'), lazy='dynamic',
+        cascade='all, delete-orphan')
 
     def is_authenticated(self):
         return True

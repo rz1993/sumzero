@@ -22,11 +22,121 @@
     </a>
     {% endfor %}
   </div>
+
+  <!-- Threaded comments -->
+  <div class="ui dividing header">Comments</div>
+  <div class="ui form comment-form">
+    <div class="field comment-body">
+      <textarea rows="3" placeholder="Write a reponse..."></textarea>
+    </div>
+    <button class="ui basic button comment-submit main-submit">Submit</button>
+  </div>
+  <div class="ui vertical segment comment-tree">
+  {% for comment in summary.get_comments() recursive %}
+    <div id="{{ comment.id }}" class="ui segment comment" style="margin-left:{{ comment.get_margin() }};">
+      <div class="ui small header">
+        <img src="{{ comment.user.get_avatar_url() }}" class="ui mini circular image">
+        <div class="content">
+          {{ comment.user.first_name }}
+          <div class="sub header">{{ comment.pretty_date() }}</div>
+        </div>
+      </div>
+      <p>{{ comment.body }}</p>
+      <div class="ui tiny right aligned grey header comment-reply">Reply</div>
+      {% if comment.get_comments() %}
+      <div class="ui divider"></div>
+      {{ loop(comment.get_comments()) }}
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 {% from 'macros.html' import render_sub_button_js, render_bkmk_js %}
 {{ render_sub_button_js(summary.source, current_user) }}
-{{ render_bkmk_js(summary, current_user) }}
+{{ render_bkmk_js(summary) }}
+
+<!-- Javascript for ajax comments and updating comment tree -->
+<script type="text/javascript">
+$(document).ready(function() {
+  $(document).on('click', 'button.comment-submit', function() {
+    submitComment(this);
+  });
+  $(document).on('click', 'div.comment-reply', function() {
+    showCommentForm(this);
+  });
+});
+
+const comment_tree = $('div.comment-tree');
+
+function showCommentForm(element) {
+  const reply_link = $(element);
+  const comment_id = reply_link.parent('div.comment').attr('id');
+  if (reply_link.next('div.comment-form').length > 0) return;
+  const form_html =
+    '<div comment-id="'+comment_id+'" class="ui form comment-form">'+
+    '<div class="field comment-body">'+
+    '<textarea rows="2" placeholder="Write a reponse..."></textarea></div>'+
+    '<button class="ui basic button comment-submit">Submit'+
+    '</button><button class="ui basic button comment-cancel">Cancel'+
+    '</button></div>';
+  reply_link.after(form_html);
+}
+
+function submitComment(element) {
+  const button = $(element);
+  const form = button.parent('div.comment-form');
+  const not_nested = button.hasClass('main-submit');
+
+  // Ajax post request data
+  const post_to = '{{ url_for("apis.add_comment") }}';
+  const body_input = button.prev('div.comment-body').children('textarea');
+  const body = body_input.val();
+  const parent_id = form.attr('comment-id') || '';
+  const summary_id = '{{ summary.id }}';
+
+  // Disallow empty responses
+  if (!body) {
+    alert("Responses can't be empty!");
+    return;
+  }
+
+  $.post(post_to, {
+    summary_id: summary_id,
+    parent_id: parent_id,
+    body: body },
+    function(response) {
+      const comment_html =
+        '<div id="' + response.comment_id + '" class="ui segment comment" '+
+        'style="margin-left:' + response.margin + '"><div class="ui small header">'+
+        '<img src="' + response.user_avatar_url + '" class="ui mini circular image">'+
+        '<div class="content">' + response.name + '<div class="sub header">' +
+        response.created_on + '</div></div></div><p>' + response.body + '</p><div ' +
+        'class="ui tiny right aligned grey header comment-reply">Reply</div>' +
+        '</div>';
+
+      // Add to the beginning of the comment tree if comment isn't nested
+      if (not_nested) {
+        comment_tree.prepend(comment_html)
+      } else {
+        // Otherwise, attach to subtree of the current comment after divider
+        const comment = form.parent('div.comment');
+        const divider = comment.children('div.divider');
+        if (divider.length < 1) {
+          comment.append('<div class="ui divider"></div>');
+          comment.append(comment_html);
+        } else {
+          divider.after(comment_html);
+        }
+      }
+      form.remove();
+      body_input.val('');
+    }, 'json'
+  );
+  return
+}
+</script>
+
 {% endblock %}

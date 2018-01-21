@@ -12,7 +12,7 @@ from sum_zero.summary.models import Summary
 
 mod = Blueprint('apis', __name__, url_prefix="/apis/v1")
 
-@mod.route('/subscribe', methods=['POST'])
+@mod.route('/source/subscribe', methods=['POST'])
 def subscribe():
     user_id = int(request.form['user_id'])
     source_id = int(request.form['source_id'])
@@ -23,7 +23,7 @@ def subscribe():
         return jsonify(source_id=source_id, user_id=user_id)
     abort(404)
 
-@mod.route('/unsubscribe', methods=['POST'])
+@mod.route('/source/unsubscribe', methods=['POST'])
 def unsubscribe():
     user_id = int(request.form['user_id'])
     source_id = int(request.form['source_id'])
@@ -34,15 +34,32 @@ def unsubscribe():
         return jsonify(source_id=source_id, user_id=user_id)
     abort(404)
 
-@mod.route('/bookmark', methods=['POST'])
+@mod.route('/summary/bookmark', methods=['POST'])
 def bookmark():
-    user_id = int(request.form['user_id'])
+    user_id = current_user.id
     summary_id = int(request.form['summary_id'])
-    if current_user.id != user_id:
-        abort(404)
     if not current_user.has_bookmarked(summary_id):
         current_user.bookmark(summary_id)
         return jsonify(summary_id=summary_id, user_id=user_id)
     else:
         current_user.del_bookmark(summary_id)
         return jsonify(summary_id=summary_id, user_id=user_id)
+
+@mod.route('/summary/add_comment', methods=['POST'])
+def add_comment():
+    user_id = current_user.id
+    summary_id = int(request.form['summary_id'])
+    body = request.form['body']
+    parent_id = request.form['parent_id']
+    if parent_id == '':
+        parent_id = None
+    else:
+        parent_id = int(parent_id)
+
+    summary = Summary.query.get_or_404(summary_id)
+    comment = summary.add_comment(body, user_id, parent_id=parent_id)
+    full_name = current_user.first_name + " " + current_user.last_name
+    avatar_url = current_user.get_avatar_url()
+    return jsonify(comment_id=comment.id, body=comment.body,
+        margin=comment.get_margin(), name=full_name,
+        created_on=comment.pretty_date(), user_avatar_url=avatar_url)

@@ -1,0 +1,81 @@
+
+
+<div class="comment-form">
+  <input id="comment-body" type="text" name="body"></input>
+  <input id="main-submit" class="submit-comment" type="submit" value="Submit"></input>
+</div>
+
+<div id="comment-section" class="comment-tree">
+{% for comment in summary.get_comments() recursive%}
+  <div id="{{ comment.id }}" class="comment" style="margin-left:{{ comment.get_margin() }};">
+    <h3>{{ comment.user.first_name }}</h3>
+    <p>{{ comment.body }}</p>
+    <a class="reply" href="#">reply</a>
+  </div>
+  {% if comment.get_comments() %}
+    {{ loop(comment.get_comments())}}
+  {% endif %}
+{% endfor %}
+</div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+  $(document).on('click', 'input.submit-comment', function() {
+    submitComment(this);
+  });
+  $(document).on('click', 'a.reply', function() {
+    showCommentForm(this);
+  });
+})
+
+function showCommentForm(element) {
+  const link = $(element);
+  const parent_id = link.parent('div').attr('id');
+  const form_html =
+    '<div class="comment-form" parent-id="' + parent_id +
+    '"><input id="comment-body" type="text" name="body"></input>' +
+    '<input class="submit-comment" type="submit" value="Submit">' +
+    '</input></div>';
+  link.after(form_html);
+}
+
+function submitComment(element) {
+  console.log("Clicked!");
+  const button = $(element);
+  const not_nested = button.attr('id') == 'main-submit';
+
+  const form = button.parent('div.comment-form').get(0);
+
+  console.log("Form id: " + form.id);
+  const parent_id = form.getAttribute('parent-id') || '';
+  const summary_id = {{ summary.id }};
+  const body_text = button.parent('div.comment-form')
+                   .children('input#comment-body')
+                   .get(0).value;
+  const post_to = "{{ url_for('apis.add_comment') }}";
+
+  $.post(post_to, {
+    summary_id: summary_id,
+    body: body_text,
+    parent_id: parent_id },
+    function(response) {
+      console.log("Success!");
+      const comment_html =
+        "<div id='" + response.comment_id + "' style='margin-left:" +
+        response.margin + "'><h3>" + response.name + "</h3>" +
+        "<p>" + response.body + "</p><a class='reply' href='#'>reply</a></div>";
+
+      if (not_nested) {
+        const comment_section = $('div.comment-tree').prepend(comment_html);
+      } else {
+        const parent = button.parentsUntil('div.comment');
+        parent.after(comment_html);
+      }
+    }, 'json'
+  );
+
+  return false
+}
+</script>

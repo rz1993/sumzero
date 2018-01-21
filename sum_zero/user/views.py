@@ -6,7 +6,7 @@ from functools import wraps
 from sum_zero import db
 from sum_zero.user.forms import EditProfileForm, LoginForm, RegistrationForm
 from sum_zero.user.models import User, UserAuth
-from sum_zero.utils import send_email
+
 
 mod = Blueprint('user', __name__, url_prefix="/user")
 
