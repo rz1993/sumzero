@@ -3,10 +3,10 @@
 {% macro render_sub_button(source, current_user) %}
 
 {% if not current_user.is_subscribed(source.id) %}
-<button id='subscribe-btn' class="ui button"
+<button id='subscribe-btn' class="ui teal basic button"
         post='{{ url_for('apis.subscribe') }}'>Subscribe</button>
 {% else %}
-<button id='subscribe-btn' class="ui button"
+<button id='subscribe-btn' class="ui basic button"
         post='{{ url_for('apis.unsubscribe') }}'>Unsubscribe</button>
 {% endif %}
 
@@ -86,4 +86,39 @@ function toggleButton() {
   bookmark_button.classList.toggle('remove');
 }
 </script>
+{% endmacro %}
+
+{% macro render_pagination(pagination) %}
+<div class="ui secondary borderless menu">
+  <div class="left menu">
+    {% if pagination.has_prev %}
+    <a href="?page={{ pagination.prev_num }}">
+      <div class="item" style="font-size:16px;">
+        <i class="large left angle icon"></i>Prev
+      </div>
+    </a>
+    {% else %}
+    <a>
+      <div class="item" style="font-size:16px; opacity:0.3;">
+        <i class="large left angle icon"></i>Prev
+      </div>
+    </a>
+    {% endif %}
+  </div>
+  <div class="right menu">
+    {% if pagination.has_next %}
+    <a href="?page={{ pagination.next_num }}">
+      <div class="item" style="font-size:16px;">
+        Next<i class="large right angle icon"></i>
+      </div>
+    </a>
+    {% else %}
+    <a>
+      <div class="item" style="font-size:16px; opacity:0.3;">
+        Next<i class="large right angle icon"></i>
+      </div>
+    </a>
+    {% endif %}
+  </div>
+</div>
 {% endmacro %}

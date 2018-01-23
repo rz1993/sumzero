@@ -1,8 +1,13 @@
 from datetime import datetime
+from flask import url_for
+
 from sum_zero import db
 from sum_zero import utils
 from sum_zero.summary import constants as SUMMARY
 
+"""
+TODO: Fix summary.get_thumbnail method and cache summary.preview
+"""
 
 summary_tag = db.Table('summary_tag',
     db.Column('tag_id', db.Integer, db.ForeignKey('tag.id', ondelete='CASCADE')),
@@ -58,7 +63,13 @@ class Summary(db.Model):
             .order_by(db.desc(Comment.created_on)).all()
 
     def get_thumbnail(self):
-        pass
+        return url_for('static', filename='test.jpg')
+
+    def pretty_date(self):
+        return utils.pretty_date(self.published_date)
+
+    def preview(self):
+        return self.body[:SUMMARY.PREVIEW_LENGTH] + '...'
 
     def set_tags(self, tags):
         if not isinstance(tags, list):

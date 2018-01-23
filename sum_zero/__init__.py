@@ -28,14 +28,6 @@ migrate = Migrate(app, db)
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 
-@app.route('/')
-def landing():
-    return render_template('landing.html')
-
-@app.route('/home')
-def index():
-    return render_template('home.html')
-
 from sum_zero.user.views import mod as user_blueprint
 app.register_blueprint(user_blueprint)
 
@@ -44,5 +36,8 @@ app.register_blueprint(summary_blueprint)
 
 from sum_zero.api.views import mod as api_blueprint
 app.register_blueprint(api_blueprint)
+
+from sum_zero.base_views.views import mod as base_blueprint
+app.register_blueprint(base_blueprint)
 
 app.debug = app.config['DEBUG']

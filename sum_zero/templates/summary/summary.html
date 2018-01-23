@@ -11,13 +11,13 @@
         From {{ summary.source.name }}
         {{ render_sub_button(summary.source, current_user) }}
       </div>
-      <div class="sub header">{{ summary.published_date }}</div>
+      <div class="sub header">{{ summary.pretty_date() }}</div>
     </div>
     <p>{{ summary.body }}</p>
     <a href="{{ summary.link }}">Original Article</a>
     <div class="ui hidden divider"></div>
     {% for tag in summary.tags %}
-    <a class="ui button" href="{{ url_for('summary.get_tag', tag_id=tag.id) }}">
+    <a class="ui basic button" href="{{ url_for('summary.get_tag', tag_id=tag.id) }}">
       {{ tag.tag }}
     </a>
     {% endfor %}
@@ -67,6 +67,9 @@ $(document).ready(function() {
   $(document).on('click', 'div.comment-reply', function() {
     showCommentForm(this);
   });
+  $(document).on('click', 'button.comment-cancel', function() {
+    cancelForm(this);
+  })
 });
 
 const comment_tree = $('div.comment-tree');
@@ -136,6 +139,11 @@ function submitComment(element) {
     }, 'json'
   );
   return
+}
+
+function cancelForm(element) {
+  const button = $(element);
+  button.parent('div.comment-form').remove();
 }
 </script>
 
