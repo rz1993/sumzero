@@ -21,13 +21,6 @@ class Subscription(db.Model):
         db.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
-class Bookmark(db.Model):
-    summary_id = db.Column(db.Integer,
-        db.ForeignKey('summary.id', ondelete='CASCADE'), primary_key=True)
-    user_id = db.Column(db.Integer,
-        db.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-
 class Summary(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(64), nullable=False)
@@ -39,6 +32,7 @@ class Summary(db.Model):
     tags = db.relationship('Tag', secondary=summary_tag,
         backref=db.backref('summaries', lazy='dynamic'), lazy='dynamic')
     comments = db.relationship('Comment', backref='summary', lazy='dynamic')
+    bookmarks = db.relationship('Bookmark', backref='summary', lazy='dynamic')
 
     def add_comment(self, body, user_id, parent_id=None):
         if parent_id is None:
@@ -110,6 +104,10 @@ class Comment(db.Model):
             self.depth = self.parent.depth + 1
             db.session.add(self)
             db.session.commit()
+
+    def to_json(self):
+        return dict(user_id=self.user_id, created_on=self.pretty_date(), depth=self.depth,
+            parent_id=self.parent_id, body=self.body)
 
     def get_margin(self):
         """

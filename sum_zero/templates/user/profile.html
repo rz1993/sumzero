@@ -3,12 +3,12 @@
 {% block content %}
 <div class="ui text container">
   <div class="ui vertical segment" style="min-height: 15em;">
-    <img class="ui left floated small image" src="{{ current_user.get_avatar_url() }}">
+    <img class="ui left floated small image" src="{{ profile.avatar_url }}">
 
     <span id="profile-segment" class="ui large header">
       <!-- If logged in user is viewing their own profile, allow them to edit -->
       {% if is_user %}
-      <button id="edit-button" class="ui right floated button">Edit</button>
+      <button id="edit-button" class="ui right floated basic button">Edit</button>
       {% endif %}
       {{ " ".join([profile.get('first_name'), profile.get('last_name')]) }}
       <p class="sub header">{{ profile.get("bio") or "" }}</p>
@@ -36,24 +36,26 @@
             {{ form.bio(placeholder="Write something about yourself...", rows="3") }}
           </div>
         </div>
-        <div class="field">
-          {{ form.submit(class="ui button") }}
+        <div class="fields">
+          <div class="field">
+            {{ form.submit(class="ui basic button") }}
+          </div>
+          <div class="field">
+            <button id="cancel-button" class="ui basic button">Cancel</button>
+          </div>
         </div>
+
       </form>
     </span>
     {% endif %}
   </div>
-
-  <div class="ui vertical segment">
-    <h2 class="ui header">Subscribed</h2>
+  <div class="ui top secondary pointing tabular menu">
+    <div class="active item" data-tab="first">Profile</div>
+    <div class="item comments-item" data-tab="second">Comments</div>
   </div>
-
-  <div class="ui vertical segment">
-    <h2 class="ui header">Liked</h2>
+  <div class="ui bottom active tab container" data-tab="first">
   </div>
-  
-  <div class="ui vertical segment">
-    <h2 class="ui header">Comments</h2>
+  <div class="ui bottom tab container comments-tab" data-tab="second">
   </div>
 </div>
 {% endblock %}
@@ -61,14 +63,51 @@
 {% block scripts %}
 <script>
   var editButton = document.getElementById("edit-button");
+  var cancelButton = document.getElementById("cancel-button");
   var profileSegment = document.getElementById("profile-segment");
   var profileForm = document.getElementById("profile-form");
+
+  $('.menu .item').tab();
+  const comments_item = $('div.comments-item');
+  const comments_tab = $('div.comments-tab');
+
+  comments_item.on('click', function() getComments());
+
   if (editButton) editButton.onclick = renderEditForm;
+  if (cancelButton) cancelButton.onlick = cancelEditForm;
 
   function renderEditForm() {
     profileSegment.style.display = "None";
     profileForm.style.display = "Inline";
     console.log("Editing...")
+  }
+
+  function cancelEditForm() {
+    profileSegment.style.display = "";
+    profileForm.style.display = "None";
+  }
+
+  function getComments() {
+    // If comments already loaded, then do nothing.
+    if (comments_tab.hasClass('loaded')) return;
+
+    let endpoint = '{{ url_for('apis.get_comments') }}';
+    console.log(endpoint);
+    $.get(endpoint, {
+          user_id: {{ profile.id }},
+          page: {{ 1 }} }, function(response) {
+            console.log("Success!");
+            for (let comment of response.comments) {
+              comments_tab.append(
+              '<div class="ui segment comment"><div class="ui small header">'+
+              '<img src="{{ profile.avatar_url }}" class="ui mini circular image">'+
+              '<div class="content">{{ " ".join([profile.get('first_name'), profile.get('last_name')]) }}'+
+              '<div class="sub header">' + comment.created_on + '</div></div></div><p>' + comment.body +
+              '</p></div>');
+            }
+            comments_tab.addClass('loaded');
+          }
+      )
   }
 </script
 {% endblock %}

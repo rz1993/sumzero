@@ -1,17 +1,19 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="ui secondary menu">
-  <div class="left menu">
-    <div class="ui huge header">
-      <h2 class="sub small header">Sourced from:</h2>
-      {{ source.name }}
+<div class="ui hidden basic segment">
+  <div class="ui secondary menu">
+    <div class="left menu">
+      <div class="ui huge header">
+        <h2 class="sub small header">Sourced from:</h2>
+        {{ source.name }}
+      </div>
     </div>
-  </div>
-  <div class="right menu">
-    <div class="item">
-    {% from 'macros.html' import render_sub_button %}
-    {{ render_sub_button(source, current_user) }}
+    <div class="right menu">
+      <div class="item">
+      {% from 'macros.html' import render_sub_button %}
+      {{ render_sub_button(source, current_user) }}
+      </div>
     </div>
   </div>
 </div>
@@ -27,7 +29,7 @@
           <img src="{{ summary.get_thumbnail() }}"></img>
         </div>
         <div class="content">
-          <a class="header">{{ summary.title }}</a>
+          <a class="header" href="{{ url_for('summary.get_summary', summary_id=summary.id) }}">{{ summary.title }}</a>
           <div class="meta">{{ summary.pretty_date() }}</div>
           <div class="description">{{ summary.preview() }}</div>
         </div>

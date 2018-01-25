@@ -1,6 +1,7 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request
 
 from sum_zero import app, db
+from sum_zero.search import search_db
 from sum_zero.summary.models import Source
 
 
@@ -21,3 +22,13 @@ def index():
         summaries[source.id] = source_summaries
     return render_template('home.html', sources=sources,
         summaries=summaries)
+
+@mod.route('/search')
+def search():
+    query = request.args.get('query')
+    page = int(request.args.get('page', 1))
+    results = search_db(query, order_by='published_on')
+    pagination = results.paginate(
+        page, per_page=15)
+    return render_template('search_results.html',
+        query=query, pagination=pagination)

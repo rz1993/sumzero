@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="ui huge header">
+  <h2 class="sub small header">{{ pagination.total }} Results for:</h2>
+  {{ query }}
+</div>
+<div class="ui divider"></div>
+{% from 'macros.html' import render_pagination %}
+{{ render_pagination(pagination) }}
+<div class="ui padded grid">
+  <div class="ten wide column">
+    {% for summary in pagination.items %}
+    <div class="ui fluid segment">
+      <div class="ui padded grid">
+        <div class="seven wide column">
+          <!-- `ui image` class needed to fit image to container -->
+          <img class="ui image" src="{{ url_for('static', filename='test.jpg') }}"></img>
+        </div>
+        <div class="nine wide left aligned column">
+          <div class="ui medium header">
+            <a href="{{ url_for('summary.get_summary', summary_id=summary.id) }}" style="color:inherit;">
+              {{ summary.title }}
+            </a>
+            <div class="sub header">{{ summary.pretty_date() }}</div>
+          </div>
+          <p>{{ summary.preview() }}</p>
+          <a href="{{ summary.link }}">Original Article</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="six wide column"></div>
+</div>
+{% endblock %}

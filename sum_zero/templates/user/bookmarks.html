@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="ui huge header">
+  <h2 class="sub small header">Your</h2>
+  Reading List
+</div>
+<div class="ui divider"></div>
+{% from 'macros.html' import render_pagination %}
+{{ render_pagination(pagination) }}
+<div class="ui padded grid">
+  <div class="six wide column"></div>
+  <div class="ten wide column">
+    {% for bookmark in pagination.items %}
+    <div class="ui fluid segment">
+      <div class="ui padded grid">
+        <div class="seven wide column">
+          <!-- `ui image` class needed to fit image to container -->
+          <img class="ui image" src="{{ bookmark.summary.get_thumbnail() }}"></img>
+        </div>
+        <div class="nine wide left aligned column">
+          <div class="ui medium header">
+            <a href="{{ url_for('summary.get_summary', summary_id=bookmark.summary_id) }}" style="color:inherit;">
+              {{ bookmark.summary.title }}
+            </a>
+            <div class="sub header">
+              {{ bookmark.summary.pretty_date() }} |
+              Bookmarked: {{ bookmark.pretty_date() }}
+            </div>
+          </div>
+          <p>{{ bookmark.summary.preview() }}</p>
+          <a href="{{ bookmark.summary.link }}">Original Article</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

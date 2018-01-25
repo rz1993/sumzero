@@ -4,8 +4,9 @@ from flask_login import current_user, login_required, login_user, logout_user
 from functools import wraps
 
 from sum_zero import db
+from sum_zero.user import constants as CONSTANTS
 from sum_zero.user.forms import EditProfileForm, LoginForm, RegistrationForm
-from sum_zero.user.models import User, UserAuth
+from sum_zero.user.models import Bookmark, User, UserAuth
 
 
 mod = Blueprint('user', __name__, url_prefix="/user")
@@ -57,7 +58,7 @@ def login():
         if user:
             login_user(user, remember=form.remember_me.data)
             flash("Welcome back!")
-            return redirect(url_for('index'))
+            return redirect(url_for('base.index'))
         flash("Invalid username or password.")
     return render_template('user/login.html', form=form)
 
@@ -66,7 +67,7 @@ def login():
 def logout():
     logout_user()
     flash("You have been logged out!")
-    return redirect(url_for('index'))
+    return redirect(url_for('base.index'))
 
 @mod.route('/<user_id>/', methods=['GET', 'POST'])
 def profile(user_id=None):
@@ -92,3 +93,12 @@ def profile(user_id=None):
     form.bio.data = user.bio
     profile = user.user_context()
     return render_template('user/profile.html', is_user=True, form=form, profile=profile)
+
+@mod.route('/bookmarks')
+@login_required
+def bookmarks():
+    page = int(request.args.get('page', 1))
+    bookmark_pagination = current_user.bookmarks.paginate(
+        page, per_page=CONSTANTS.BOOKMARKS_PER_PAGE
+    )
+    return render_template('user/bookmarks.html', pagination=bookmark_pagination)

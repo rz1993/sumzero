@@ -1,9 +1,21 @@
+from datetime import datetime
 from flask import url_for
 from hashlib import md5
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from sum_zero import app, db
-from sum_zero.summary.models import Bookmark, Comment, Subscription
+from sum_zero import app, db, utils
+from sum_zero.summary.models import Comment, Subscription
 from werkzeug.security import check_password_hash, generate_password_hash
+
+
+class Bookmark(db.Model):
+    summary_id = db.Column(db.Integer,
+        db.ForeignKey('summary.id', ondelete='CASCADE'), primary_key=True)
+    user_id = db.Column(db.Integer,
+        db.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def pretty_date(self):
+        return utils.pretty_date(self.timestamp)
 
 
 class User(db.Model):
@@ -62,7 +74,7 @@ class User(db.Model):
 
     def user_context(self):
         return dict(id=self.id, email=self.email, first_name=self.first_name,
-            last_name=self.last_name, bio=self.bio)
+            last_name=self.last_name, bio=self.bio, avatar_url=self.get_avatar_url())
 
     def get_avatar_url(self):
         url = "https://avatars.io"
