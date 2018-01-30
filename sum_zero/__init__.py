@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, g, render_template, session
 from flask_login import LoginManager
 from flask_mail import Mail
@@ -5,8 +7,14 @@ from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
 from flask_sqlalchemy import SQLAlchemy
 
+
 app = Flask(__name__)
-app.config.from_object('config')
+
+# Set configuration target file depending on environment
+if os.environ.get('PRODUCTION'):
+    app.config.from_object('heroku_config')
+else:
+    app.config.from_object('config')
 
 db = SQLAlchemy(app)
 mail = Mail(app)

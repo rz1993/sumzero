@@ -2,12 +2,14 @@
 
 {% macro render_sub_button(source, current_user) %}
 
-{% if not current_user.is_subscribed(source.id) %}
-<button id='subscribe-btn' class="ui teal basic button"
-        post='{{ url_for('apis.subscribe') }}'>Subscribe</button>
-{% else %}
-<button id='subscribe-btn' class="ui basic button"
-        post='{{ url_for('apis.unsubscribe') }}'>Unsubscribe</button>
+{% if current_user.is_authenticated %}
+  {% if not current_user.is_subscribed(source.id) %}
+  <button id='subscribe-btn' class="ui teal basic button"
+          post='{{ url_for('apis.subscribe') }}'>Subscribe</button>
+  {% else %}
+  <button id='subscribe-btn' class="ui basic button"
+          post='{{ url_for('apis.unsubscribe') }}'>Unsubscribe</button>
+  {% endif %}
 {% endif %}
 
 {% endmacro %}
@@ -54,12 +56,14 @@ function toggleButton() { // Toggle the sub button to unsub
 
 {% macro render_bkmk_button(summary, current_user) %}
 
-{% if not current_user.has_bookmarked(summary.id) %}
-<i id='bookmark-btn' class="remove bookmark icon"
-   post='{{ url_for('apis.bookmark') }}'></i>
-{% else %}
-<i id='bookmark-btn' class="bookmark icon"
-   post='{{ url_for('apis.bookmark') }}'></i>
+{% if current_user.is_authenticated %}
+  {% if not current_user.has_bookmarked(summary.id) %}
+  <i id='bookmark-btn' class="remove bookmark icon"
+     post='{{ url_for('apis.bookmark') }}'></i>
+  {% else %}
+  <i id='bookmark-btn' class="bookmark icon"
+     post='{{ url_for('apis.bookmark') }}'></i>
+  {% endif %}
 {% endif %}
 
 {% endmacro %}
