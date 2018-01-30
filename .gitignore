@@ -2,7 +2,7 @@
 config.py
 
 # Static files
-static
+# static
 
 # Compiled python files
 __pycache__
