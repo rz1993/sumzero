@@ -73,7 +73,7 @@ def create_fake_summaries(db):
         num_subscribers = random.randint(1, len(all_users))
         subscribers = random.sample(all_users, num_subscribers)
         for user in subscribers:
-            user.subscribe(source)
+            user.subscribe(source.id)
 
         for _ in range(10):
             summary = Summary(title=fake.catch_phrase(),
