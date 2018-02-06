@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request
 
 from sum_zero import app, db
-from sum_zero.search import search_db
+from sum_zero.search import most_common_tags, search_db
 from sum_zero.summary.models import Source
 
 
@@ -30,5 +30,7 @@ def search():
     results = search_db(query, order_by='published_on')
     pagination = results.paginate(
         page, per_page=15)
+    top_tags = most_common_tags(pagination.items)
+
     return render_template('search_results.html',
-        query=query, pagination=pagination)
+        query=query, pagination=pagination, top_tags=top_tags)

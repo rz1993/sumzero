@@ -37,7 +37,9 @@
       <div class="ui small header">
         <img src="{{ comment.user.get_avatar_url() }}" class="ui mini circular image">
         <div class="content">
+          <a href="{{ url_for('user.profile', user_id=comment.user.id) }}">
           {{ comment.user.first_name }}
+          </a>
           <div class="sub header">{{ comment.pretty_date() }}</div>
         </div>
       </div>

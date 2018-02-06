@@ -30,7 +30,7 @@ class Summary(db.Model):
     link = db.Column(db.String(128))
 
     tags = db.relationship('Tag', secondary=summary_tag,
-        backref=db.backref('summaries', lazy='dynamic'), lazy='dynamic')
+        backref=db.backref('summaries', lazy='dynamic'), lazy='joined')
     comments = db.relationship('Comment', backref='summary', lazy='dynamic')
     bookmarks = db.relationship('Bookmark', backref='summary', lazy='dynamic')
 

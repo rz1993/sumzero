@@ -10,6 +10,11 @@
 {{ render_pagination(pagination) }}
 <div class="ui padded grid">
   <div class="ten wide column">
+    <div class="ui secondary pointing menu">
+      <div class="item">
+        <div class="ui small header">Summaries</div>
+      </div>
+    </div>
     {% for summary in pagination.items %}
     <div class="ui fluid segment">
       <div class="ui padded grid">
@@ -31,6 +36,19 @@
     </div>
     {% endfor %}
   </div>
-  <div class="six wide column"></div>
+  <div class="six wide column">
+    <div class="ui container">
+      <div class="ui secondary pointing menu">
+        <div class="item">
+          <div class="ui small header">Tags</div>
+        </div>
+      </div>
+      {% for tag in top_tags %}
+      <a class="ui basic button" href="{{ url_for('summary.get_tag', tag_id=tag.id) }}">
+        {{ tag.tag }}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
 </div>
 {% endblock %}

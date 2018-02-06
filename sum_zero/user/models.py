@@ -38,7 +38,6 @@ class User(db.Model):
     ig_handle = db.Column(db.String(50), nullable=True) # For avatar retrieval
     avatar_hash = db.Column(db.String(255), nullable=True)
 
-    """ Following four methods required for Flask-Login session management."""
     # Relationships
     subscriptions = db.relationship('Subscription', foreign_keys=[Subscription.user_id],
         backref=db.backref('user', lazy='joined'), lazy='dynamic',
@@ -50,6 +49,7 @@ class User(db.Model):
         backref=db.backref('user', lazy='joined'), lazy='dynamic',
         cascade='all, delete-orphan')
 
+    """ Following four methods required for Flask-Login session management."""
     def is_authenticated(self):
         return True
 

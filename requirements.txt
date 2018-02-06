@@ -1,3 +1,4 @@
+airflow==1.8.0
 bcrypt==3.1.4
 blinker==1.4
 cffi==1.11.2
