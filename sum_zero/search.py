@@ -1,13 +1,24 @@
 from sum_zero import db
 from sum_zero.summary.models import Summary
 
+from collections import Counter
+
+
+def most_common_tags(summaries, top_n=10):
+    """
+    Count and sort tags given a list of summaries
+    """
+    tag_counts = Counter()
+    for s in summaries:
+        tag_counts.update(s.tags)
+
+    return [tag for tag, count in tag_counts.most_common(top_n)]
 
 def search_db(query, order_by='published_on', search_title=True,
               search_body=True, limit=100):
     """
     Summary search using basic query text matching
     """
-
     if query is None:
         return []
 
