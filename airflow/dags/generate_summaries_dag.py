@@ -10,6 +10,7 @@ from crawler import crawl_batch
 from news_api import NewsAPI
 from newspaper import Article
 
+import csv
 import os
 
 '''
@@ -101,22 +102,69 @@ def get_news_meta(**kwargs):
 
 def get_news_articles(**kwargs):
     '''
-    Query db for urls that have not been scraped and then scrape them.
+    Python callable for article scraping task.
+    This will get executed after news metadata has been
+    collected and validated for the current execution period.
 
-    Store articles in some kind of store...
+    Target URLs will be retrieved from Postgres for articles
+    published after the last run date of this task. Articles
+    will be written to file.
     '''
-    urls = []
+    # TODO:
+    # Decide how to store articles in FS (method and schema)
+    # Decide how to name log files
+    # Decide whether to implement compression task
+
+    pg_hook = PostgresHook(postgres_conn_id='sumzero')
+    ds = kwargs.get('ds') or datetime.now().isoformat()
+    '''
+    query_results = pg_hook.get_records(
+
+        SELECT URL FROM news_meta
+            WHERE published_on > %s;
+        ,
+        parameters=[ds]
+    )
+    urls = [record[0] for record in query_results]
+    '''
+    urls = kwargs.get('urls')
+
+    # Download articles and write them to a csv.
+    time_str = datetime.now().isoformat()
+    log_fname = 'test_{}.csv'.format(time_str)
+    failed_log_fname = 'failed_test_{}.csv'.format(time_str)
+
+    log_file = open(log_fname, 'w+')
+    log_writer = csv.writer(log_file,
+        delimiter=',',
+        quotechar='|')
+    failed_log = open(failed_log_fname, 'w+')
+    failed_writer = csv.writer(failed_log,
+        delimiter=',',
+        quotechar='|')
+
     for url in urls:
         loader = Article(url)
-        loader.download()
-        loader.parse()
+        try:
+            loader.download()
+            loader.parse()
+            log_writer.writerow((
+                time_str,
+                loader.text
+            ))
+        except Exception as error:
+            failed_writer.writerow((
+                time_str,
+                str(error),
+                url
+            ))
 
 '''
 DAGS
 '''
 default_args = {}
 
-dag_crawl = DAG(dag_id="crawl_news",
+'''dag_crawl = DAG(dag_id="crawl_news",
                 description="Crawl news articles from various sources.",
                 start_date=datetime(2017, 12, 31),
                 interval="0 3 * * *",
@@ -130,7 +178,7 @@ get_news_meta_task = PythonOperator(task_id='get_news_meta',
 get_news_dag = PythonOperator(task_id='get_news_articles',
         provide_context=True,
         python_callable=get_news_articles,
-        dag=None)
+        dag=None)'''
 
 '''
 dag_summarize = DAG(dag_id="summarize",
